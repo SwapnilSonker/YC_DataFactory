@@ -97,23 +97,58 @@ def login():
                     new_window = context.wait_for_event("page",timeout=10000)
                     new_page = new_window
 
-                    # new_page.wait_for_selector('//div[@class="text-2xl font-medium"]//a', timeout=10000) 
-                    # link_locator = new_page.locator('//div[@class="text-2xl font-medium"]//a')
-                    # job_link = link_locator.get_attribute('href')
-                    # print(f"Job Link: {job_link}")
+                    new_page.wait_for_selector('//div[@class="text-blue-600 ellipsis"]//a', timeout=30000) 
+                    link_locator = new_page.locator('//div[@class="text-blue-600 ellipsis"]//a')
+                    link_count = link_locator.count()
                     
-                    # new_page = context.wait_for_event("page", timeout=10000)
-                    # print(f"New page opened for job {i}")
-
-                    # # Wait for the new page to load fully
-                    # new_page.wait_for_load_state("domcontentloaded")
-
-                    # # Extract information from the new page
-                    # job_link_locator = new_page.locator('//div[@class="text-2xl font-medium"]//a')
-                    # job_link_locator.wait_for(state="visible", timeout=10000)
-                    # job_link = job_link_locator.first.get_attribute('href')
-                    # print(f"Job Link: {job_link}")
-
+                    unique_list = set()
+                    for i in range(link_count):
+                        try:
+                            job_link = link_locator.nth(i).get_attribute('href')
+                            if job_link:
+                                unique_list.add(job_link)
+                            # print(f"Job Link: {job_link}")
+                        except Exception as e:
+                            print("link not found")  
+                    
+                    href = list(unique_list)
+                    print(f"hrefs: ${href}")    
+                    
+                    new_page.wait_for_selector('//div[@class="ml-2 w-full sm:ml-9"]//div[@class="mb-1 font-medium"]', timeout=10000)
+                    new_page.wait_for_selector('//div[@class="ml-2 w-full sm:ml-9"]//a', timeout=10000)      
+                    
+                    founder_names = new_page.locator('//div[@class="ml-2 w-full sm:ml-9"]//div[@class="mb-1 font-medium"]')
+                    founder_count = founder_names.count()
+                    
+                    founder_links = new_page.locator('//div[@class="ml-2 w-full sm:ml-9"]//a')
+                    founder_links_count = founder_links.count()
+                    
+                    unique_founder_names = set()
+                    unique_founder_links = set()
+                    for i in range(founder_count):
+                        try:
+                            name = founder_names.nth(i).text_content().strip()
+                            if name:  # Ensure the name is not empty
+                                unique_founder_names.add(name)
+                        except Exception as e:
+                            print(f"Error extracting founder name {i + 1}: {e}")
+                            
+                    for i in range(link_count):
+                        try:
+                            href = founder_links.nth(i).get_attribute('href')
+                            if href and "linkedin.com" in href:  # Filter only LinkedIn URLs
+                                unique_founder_links.add(href)
+                        except Exception as e:
+                            print(f"Error extracting LinkedIn link {i + 1}: {e}")
+                            
+                    founder_names_list = list(unique_founder_names)
+                    founder_links_list = list(unique_founder_links)    
+                    
+                    if len(founder_names_list) == len(founder_links_list):
+                        paired_founders = list(zip(founder_names_list, founder_links_list))
+                        print("Paired Founders (Name, LinkedIn):", paired_founders)
+                    else:
+                        print("Mismatched counts; cannot pair names with links.")    
                     # # Extract company name
                     # company_name_locator = new_page.locator('//div[@class="text-2xl font-medium"]//a//span[@class="company-name hover:underline"]')
                     # company_name_locator.wait_for(state="visible", timeout=10000)
