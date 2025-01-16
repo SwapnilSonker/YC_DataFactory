@@ -79,45 +79,72 @@ def login():
             
             
             for i in range(extracted_number):
-                job_divs_locator = page.locator('//div[@class="bg-beige-lighter  mb-5 rounded pb-4"]')
+                job_divs_locator = page.locator('//div[@class="mr-4 hidden sm:flex"]')
                 job_div = job_divs_locator.nth(i)
                 
-                job_div.scroll_into_view_if_needed()  # Scroll into view if needed
-                job_div.wait_for(state="visible")
-                
-                print("found the job")
-                job_div.click()
-                print("job is clicked")
-                sleep(5)
-                
-                # new_window = context.wait_for_event("popup")
-                
-                # new_page = new_window
+                try:
+                    job_div.wait_for(state="attached")
+                    job_div.scroll_into_view_if_needed()
+                    page.wait_for_timeout(500)  # Optional stability delay
+                    
+                    # Debug to confirm element interaction
+                    print(f"Attempting to click job {i}")
+                    job_div.hover()  # Optional: Check targeting
+                    job_div.click(force=True)  # Use force to bypass potential obstructions
+                    print(f"Clicked job {i}")
+                    sleep(3)
+                    
+                    new_window = context.wait_for_event("page",timeout=10000)
+                    new_page = new_window
 
-                # new_page.wait_for_selector('//div[@class="text-2xl font-medium"]//a', timeout=10000)  # Explicit wait
+                    # new_page.wait_for_selector('//div[@class="text-2xl font-medium"]//a', timeout=10000) 
+                    # link_locator = new_page.locator('//div[@class="text-2xl font-medium"]//a')
+                    # job_link = link_locator.get_attribute('href')
+                    # print(f"Job Link: {job_link}")
+                    
+                    # new_page = context.wait_for_event("page", timeout=10000)
+                    # print(f"New page opened for job {i}")
 
-                
-                # link_locator = new_page.locator('//div[@class="text-2xl font-medium"]//a').first()
-                # job_link = link_locator.get_attribute('href')
-                # print(f"Job Link: {job_link}")
+                    # # Wait for the new page to load fully
+                    # new_page.wait_for_load_state("domcontentloaded")
 
-                # company_name_locator = new_page.locator('//div[@class="text-2xl font-medium"]//a//span[@class="company-name hover:underline"]')
-                # company_name = company_name_locator.text_content()
-                # print(f"Company Name: {company_name}")
+                    # # Extract information from the new page
+                    # job_link_locator = new_page.locator('//div[@class="text-2xl font-medium"]//a')
+                    # job_link_locator.wait_for(state="visible", timeout=10000)
+                    # job_link = job_link_locator.first.get_attribute('href')
+                    # print(f"Job Link: {job_link}")
 
-                # description_locator = new_page.locator('//div[@class="mt-3 text-gray-700"]')
-                # company_description = description_locator.text_content()
-                # print(f"Company Description: {company_description}")
+                    # # Extract company name
+                    # company_name_locator = new_page.locator('//div[@class="text-2xl font-medium"]//a//span[@class="company-name hover:underline"]')
+                    # company_name_locator.wait_for(state="visible", timeout=10000)
+                    # company_name = company_name_locator.text_content()
+                    # print(f"Company Name: {company_name}")
 
-                # image_locator = new_page.locator('//div//img[@class="mt-2 sm:w-28"]')
-                # company_image_url = image_locator.get_attribute('src')
-                # print(f"Company Image URL: {company_image_url}")
-                
-                # page.go_back()
-                
-                sleep(2)
-                     
-                
+                    # # Extract job description
+                    # description_locator = new_page.locator('//div[@class="mt-3 text-gray-700"]')
+                    # description_locator.wait_for(state="visible", timeout=10000)
+                    # company_description = description_locator.text_content()
+                    # print(f"Company Description: {company_description}")
+
+                    # # Extract company image URL
+                    # image_locator = new_page.locator('//div//img[@class="mt-2 sm:w-28"]')
+                    # image_locator.wait_for(state="visible", timeout=10000)
+                    # company_image_url = image_locator.get_attribute('src')
+                    # print(f"Company Image URL: {company_image_url}")
+
+                    # Close the new page to return to the main page (if needed)
+                    new_page.close()
+                    print(f"Processed job {i} successfully")
+
+                    # Add a small delay before processing the next job
+                    page.wait_for_timeout(2000)
+
+
+                    # Add logic for further processing after click
+                    sleep(10)  # Debugging delay (replace with appropriate waits in production)
+                except Exception as e:
+                    print(f"Error clicking job {i}: {e}")   
+            browser.close()    
         except Exception as e:
             print("error",e)    
         
