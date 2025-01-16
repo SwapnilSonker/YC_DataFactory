@@ -133,7 +133,7 @@ def login():
                         except Exception as e:
                             print(f"Error extracting founder name {i + 1}: {e}")
                             
-                    for i in range(link_count):
+                    for i in range(founder_links_count):
                         try:
                             href = founder_links.nth(i).get_attribute('href')
                             if href and "linkedin.com" in href:  # Filter only LinkedIn URLs
