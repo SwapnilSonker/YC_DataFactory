@@ -149,17 +149,87 @@ def login():
                         print("Paired Founders (Name, LinkedIn):", paired_founders)
                     else:
                         print("Mismatched counts; cannot pair names with links.")    
-                    # # Extract company name
-                    # company_name_locator = new_page.locator('//div[@class="text-2xl font-medium"]//a//span[@class="company-name hover:underline"]')
-                    # company_name_locator.wait_for(state="visible", timeout=10000)
-                    # company_name = company_name_locator.text_content()
-                    # print(f"Company Name: {company_name}")
+                        
+                        
+# Wait for the elements to be available
+                    new_page.wait_for_selector('//div[@class="job-name"]//a', timeout=10000)
+                    new_page.wait_for_selector('//div[@class="mr-2 text-sm sm:mr-3 sm:flex sm:flex-wrap"]//span', timeout=10000)
 
-                    # # Extract job description
-                    # description_locator = new_page.locator('//div[@class="mt-3 text-gray-700"]')
-                    # description_locator.wait_for(state="visible", timeout=10000)
-                    # company_description = description_locator.text_content()
-                    # print(f"Company Description: {company_description}")
+                    # Extract job names and their links
+                    job_links = new_page.locator('//div[@class="job-name"]//a')
+                    job_count = job_links.count()
+
+                    # Extract job specifications
+                    job_specs = new_page.locator('//div[@class="mr-2 text-sm sm:mr-3 sm:flex sm:flex-wrap"]//span')
+                    spec_count = job_specs.count()
+
+                    # Using sets to avoid duplicates
+                    unique_jobs = set()
+                    unique_specs = set()
+
+                    # Extract job names and links
+                    for i in range(job_count):
+                        try:
+                            job_name = job_links.nth(i).text_content().strip()
+                            job_href = job_links.nth(i).get_attribute('href')
+                            if job_name and job_href:  # Ensure both name and link exist
+                                unique_jobs.add((job_name, job_href))  # Store as tuple for easy pairing
+                        except Exception as e:
+                            print(f"Error extracting job {i + 1}: {e}")
+
+                    # Extract job specifications
+                    for i in range(spec_count):
+                        try:
+                            spec = job_specs.nth(i).text_content().strip()
+                            if spec:  # Ensure the specification is not empty
+                                unique_specs.add(spec)
+                        except Exception as e:
+                            print(f"Error extracting job specification {i + 1}: {e}")
+
+                    # Convert sets to lists for further processing
+                    job_list = list(unique_jobs)
+                    spec_list = list(unique_specs)
+
+                    # Print the results
+                    print("Unique Jobs (Name, Link):", job_list)
+                    print("Unique Job Specifications:", spec_list)
+                    
+                    # page.wait_for_selector('//p', timeout=10000)
+
+                    # Locate all <p> elements
+                    # Locator for paragraphs under the main container
+                    new_page.wait_for_selector('//p', timeout=10000)
+
+                    # Locate all <p> elements
+                    paragraphs = new_page.locator('//p')
+                    p_count = paragraphs.count()
+
+                    # Store the formatted tech stack
+                    formatted_tech_stack = []
+
+                    for i in range(p_count):
+                        try:
+                            # Extract content from <strong> and its surrounding text
+                            paragraph_text = paragraphs.nth(i).evaluate(
+                                """el => {
+                                    const strongElement = el.querySelector('strong');
+                                    if (strongElement) {
+                                        const strongText = strongElement.textContent.trim();
+                                        const surroundingText = el.textContent.replace(strongText, '').trim();
+                                        return `${strongText}: ${surroundingText}`;
+                                    } else {
+                                        return el.textContent.trim();
+                                    }
+                                }"""
+                            )
+                            print(f"Extracted Tech Stack from Paragraph {i+1}: {paragraph_text}")
+                            if paragraph_text and paragraph_text not in formatted_tech_stack:  # Avoid duplicates
+                                formatted_tech_stack.append(paragraph_text)
+                        except Exception as e:
+                            print(f"Error extracting tech stack from paragraph {i+1}: {e}")
+
+                    print(f"Formatted Tech Stack: {formatted_tech_stack}")
+             
 
                     # # Extract company image URL
                     # image_locator = new_page.locator('//div//img[@class="mt-2 sm:w-28"]')
