@@ -114,6 +114,7 @@ def login():
                     href = list(unique_list)
                     print(f"hrefs: ${href}")    
                     
+                    # Founder data
                     new_page.wait_for_selector('//div[@class="ml-2 w-full sm:ml-9"]//div[@class="mb-1 font-medium"]', timeout=10000)
                     new_page.wait_for_selector('//div[@class="ml-2 w-full sm:ml-9"]//a', timeout=10000)      
                     
@@ -151,7 +152,7 @@ def login():
                         print("Mismatched counts; cannot pair names with links.")    
                         
                         
-# Wait for the elements to be available
+                    # Job data    
                     new_page.wait_for_selector('//div[@class="job-name"]//a', timeout=10000)
                     new_page.wait_for_selector('//div[@class="mr-2 text-sm sm:mr-3 sm:flex sm:flex-wrap"]//span', timeout=10000)
 
@@ -194,10 +195,7 @@ def login():
                     print("Unique Jobs (Name, Link):", job_list)
                     print("Unique Job Specifications:", spec_list)
                     
-                    # page.wait_for_selector('//p', timeout=10000)
-
-                    # Locate all <p> elements
-                    # Locator for paragraphs under the main container
+                   # Tech Stack data
                     new_page.wait_for_selector('//p', timeout=10000)
 
                     # Locate all <p> elements
@@ -229,6 +227,67 @@ def login():
                             print(f"Error extracting tech stack from paragraph {i+1}: {e}")
 
                     print(f"Formatted Tech Stack: {formatted_tech_stack}")
+                    
+                    new_page.wait_for_selector('//div[@class="text-2xl font-medium"]//span', timeout=10000)
+                    new_page.wait_for_selector('//img[@class="mt-2 sm:w-28"]', timeout =10000)
+                    new_page.wait_for_selector('//img[@class="ml-2 mr-2 h-20 w-20 rounded-full sm:ml-5"]', timeout=10000)
+                    
+                    company_image_locator = new_page.locator('//img[@class="mt-2 sm:w-28"]')
+                    founder_image_locator = new_page.locator('//img[@class="ml-2 mr-2 h-20 w-20 rounded-full sm:ml-5"]')
+                    company_name_locator = page.locator('//div[@class="text-2xl font-medium"]//span')
+                    
+                    company_images = []
+                    founder_images = []
+                    company_names = []
+                    
+                    company_image_count = company_image_locator.count()
+                    print(f"Found {company_image_count} company images.")
+                    
+                    for i in range(company_image_count):
+                        try:
+                            src = company_image_locator.nth(i).get_attribute("src")
+                            if src and src not in company_images:
+                                company_images.append(src)
+                        except Exception as e:
+                            print(f"Error extracting company image {i+1}: {e}")    
+                    
+                    company_name_count = company_name_locator.count()
+                    print(f"Found {company_name_count} company names.")
+
+                    # Extract company names
+                    for i in range(company_name_count):
+                        try:
+                            # Extract and clean the company name text
+                            company_name = company_name_locator.nth(i).inner_text().strip()
+
+                            if company_name and company_name not in company_names:  # Avoid duplicates
+                                company_names.append(company_name)
+                                print(f"Extracted company name: {company_name}")
+
+                        except Exception as e:
+                            print(f"Error extracting company name {i+1}: {e}")
+
+                    # Print the final list of company names
+                    print(f"Company names: {company_names}")
+                    
+                            
+                    founder_image_count = founder_image_locator.count()
+                    print(f"Found {founder_image_count} profile images.")     
+                    
+                    for i in range(founder_image_count):
+                        try:
+                            src = founder_image_locator.nth(i).get_attribute("src")
+                            if src and src not in founder_images:
+                                founder_images.append(src)   
+                        except Exception as e:
+                            print(f"Error extracting profile image {i+1}: {e}")
+                    
+                    print("\nExtracted Company Images:")
+                    print(company_images) 
+                    print(f"Company names: {company_names}")
+                    print("\nExtracted Profile Images:")
+                    print(founder_images)             
+                    
              
 
                     # # Extract company image URL
