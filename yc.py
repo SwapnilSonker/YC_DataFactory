@@ -1,7 +1,9 @@
 import re
 from time import sleep
 from playwright.sync_api import sync_playwright
+import json
 
+all_extracted_data = []
 def login():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
@@ -11,7 +13,7 @@ def login():
         try:
         
             page.goto("https://account.ycombinator.com/?continue=https%3A%2F%2Fwww.workatastartup.com%2F", wait_until="domcontentloaded")
-            # page.wait_for_timeout(50000)
+            
             
             print("found")
             username = page.locator('//div//input[@id="ycid-input"]')
@@ -40,8 +42,7 @@ def login():
             option = page.locator('//div[@id="role"]//div[contains(text(), "Engineering")]')
             option.wait_for(state="visible", timeout=10000)
             option.click()
-            # role.fill("Engineering")
-            # role.press('Enter')
+            
             page.wait_for_timeout(5000)
             
             page.mouse.wheel(0, 1000)
@@ -72,12 +73,6 @@ def login():
                 print("No number found in the text.")
                 
                 
-            
-            
-            
-            # jobcount = job_divs_locator.count()
-            
-            
             for i in range(extracted_number):
                 job_divs_locator = page.locator('//div[@class="mr-4 hidden sm:flex"]')
                 job_div = job_divs_locator.nth(i)
@@ -288,14 +283,23 @@ def login():
                     print("\nExtracted Profile Images:")
                     print(founder_images)             
                     
-             
-
-                    # # Extract company image URL
-                    # image_locator = new_page.locator('//div//img[@class="mt-2 sm:w-28"]')
-                    # image_locator.wait_for(state="visible", timeout=10000)
-                    # company_image_url = image_locator.get_attribute('src')
-                    # print(f"Company Image URL: {company_image_url}")
-
+                    extracted_data = {
+                        "hrefs": {
+                            "link":href,
+                            "company_image":company_images},
+                        "founders": {
+                            "founder_images": founder_images,
+                            "founder_names": paired_founders
+                            },
+                        "jobs": job_list,
+                        "specifications": spec_list,
+                        "tech_stack": formatted_tech_stack,
+                        # "company_names": company_names,
+                        # "company_images": company_images,
+                        # "founder_images": founder_images
+                    }
+                    
+                    all_extracted_data.append(extracted_data)
                     # Close the new page to return to the main page (if needed)
                     new_page.close()
                     print(f"Processed job {i} successfully")
@@ -308,6 +312,8 @@ def login():
                     sleep(10)  # Debugging delay (replace with appropriate waits in production)
                 except Exception as e:
                     print(f"Error clicking job {i}: {e}")   
+            with open("extracted_data.json", "w", encoding="utf-8") as json_file:
+                json.dump(all_extracted_data, json_file, ensure_ascii=False, indent=4)        
             browser.close()    
         except Exception as e:
             print("error",e)    
