@@ -34,7 +34,7 @@ def data_extraction(page, context, extracted_number):
                     page.wait_for_timeout(500)  # Optional stability delay
                     
                     # Debug to confirm element interaction
-                    logger.info(f"Attempting to click jobs")
+                    # logger.info(f"Attempting to click jobs")
                     job_div.hover()  # Optional: Check targeting
                     job_div.click(force=True)  # Use force to bypass potential obstructions
                     # print(f"Clicked job {i}")
@@ -187,7 +187,7 @@ def data_extraction(page, context, extracted_number):
                     company_names = []
                     
                     company_image_count = company_image_locator.count()
-                    logger.info(f"Found {company_image_count} company images.")
+                    # logger.info(f"Found {company_image_count} company images.")
                     
                     for i in range(company_image_count):
                         try:
@@ -198,7 +198,7 @@ def data_extraction(page, context, extracted_number):
                             logger.error(f"Error extracting company image {i+1}: {e}")    
                     
                     company_name_count = company_name_locator.count()
-                    logger.info(f"Found {company_name_count} company names.")
+                    # logger.info(f"Found {company_name_count} company names.")
 
                     # Extract company names
                     for i in range(company_name_count):
@@ -208,7 +208,7 @@ def data_extraction(page, context, extracted_number):
 
                             if company_name and company_name not in company_names:  # Avoid duplicates
                                 company_names.append(company_name)
-                                logger.info(f"Extracted company name: {company_name}")
+                                # logger.info(f"Extracted company name: {company_name}")
 
                         except Exception as e:
                             logger.error(f"Error extracting company name {i+1}: {e}")
