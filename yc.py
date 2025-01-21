@@ -6,8 +6,9 @@ import json
 import logging
 from dotenv import load_dotenv
 from fastapi.responses import StreamingResponse
-from fastapi import FastAPI
+from fastapi import BackgroundTasks, FastAPI
 import asyncio
+import aiofiles
 
 logging.basicConfig(
     filename='scraper.log',
@@ -351,10 +352,37 @@ def login(ycusername , ycpassword):
             browser.close()    
         except Exception as e:
             logger.error("error",e)    
+
+
+async def stream_json_updates():
+    
+    while not os.path.exists("extracted_data.json") or os.stat("extracted_data.json").st_size == 0:
+        await asyncio.sleep(2) 
+            
+    async with aiofiles.open("extracted_data.json","r") as f:
+        previous_data = set()
         
-        
-if __name__ == "__main__":
-    login(username, password)
+        while True:
+            await asyncio.sleep(1)
+            await f.seek(0)  
+            content = await f.read()
+            
+            
+            try:
+                data = json.loads(content)
+                for item in data:
+                    if item not in previous_data:
+                        previous_data.add(item)
+                        yield f"data: {json.dumps(item)}\n\n"
+            except json.JSONDecodeError:
+                continue
+            
+@app.get("/stream")
+def stream_updates(background_tasks:BackgroundTasks , username:str, password:str):
+    background_tasks.add_task(login, username=username, password=password)
+    return StreamingResponse(stream_json_updates(), media_type="text/event-stream")             
+# if __name__ == "__main__":
+#     login(username, password)
     
         
         
