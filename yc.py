@@ -5,6 +5,9 @@ from playwright.sync_api import sync_playwright
 import json
 import logging
 from dotenv import load_dotenv
+from fastapi.responses import StreamingResponse
+from fastapi import FastAPI
+import asyncio
 
 logging.basicConfig(
     filename='scraper.log',
@@ -20,6 +23,7 @@ load_dotenv()
 username =  os.getenv("YC_Username")
 password = os.getenv("YC_password")
 
+app = FastAPI() # implement streaming using sse in fastapi
 
 
 def data_extraction(page, context, extracted_number):
