@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 all_extracted_data = []
 def Data_extraction(page, context, extracted_number):
-    
+    # all_extracted_data = []
     for i in range(extracted_number):
                 job_divs_locator = page.locator('//div[@class="mr-4 hidden sm:flex"]')
                 job_div = job_divs_locator.nth(i)
@@ -83,7 +83,7 @@ def Data_extraction(page, context, extracted_number):
                     
                     if len(founder_names_list) == len(founder_links_list):
                         paired_founders = list(zip(founder_names_list, founder_links_list))
-                        print("Paired Founders (Name, LinkedIn):", paired_founders)
+                        # print("Paired Founders (Name, LinkedIn):", paired_founders)
                     else:
                         logger.error("Mismatched counts; cannot pair names with links.")    
                         
@@ -154,7 +154,7 @@ def Data_extraction(page, context, extracted_number):
                                     }
                                 }"""
                             )
-                            print(f"Extracted Tech Stack from Paragraph {i+1}: {paragraph_text}")
+                            # print(f"Extracted Tech Stack from Paragraph {i+1}: {paragraph_text}")
                             if paragraph_text and paragraph_text not in formatted_tech_stack:  # Avoid duplicates
                                 formatted_tech_stack.append(paragraph_text)
                         except Exception as e:
@@ -228,9 +228,6 @@ def Data_extraction(page, context, extracted_number):
                         "jobs": job_list,
                         "specifications": spec_list,
                         "tech_stack": formatted_tech_stack,
-                        # "company_names": company_names,
-                        # "company_images": company_images,
-                        # "founder_images": founder_images
                     }
                     
                     all_extracted_data.append(extracted_data)

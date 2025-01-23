@@ -3,11 +3,13 @@ import re
 import os
 from time import sleep
 
+from fastapi import FastAPI
 from playwright.sync_api import sync_playwright
 import json
 import logging
 from dotenv import load_dotenv
 from components.data_extraction import Data_extraction
+from schemas import Founders_data
 
 logging.basicConfig(
     filename='scraper.log',
@@ -27,6 +29,8 @@ password = os.getenv("YC_password")
 def save_data_in_json(filename, data):
     with open(filename, "w", encoding="utf-8") as json_file:
         json.dump(data, json_file, ensure_ascii=False, indent=4) 
+
+
 
 def Login(ycusername , ycpassword, number):
     with sync_playwright() as p:
@@ -101,16 +105,21 @@ def Login(ycusername , ycpassword, number):
             logging.info(f"Extracted data: {extracted_YC_data}")
             save_data_in_json("extracted_data.json", extracted_YC_data)   
             
-            logger.info(f"data extracted successfully")       
+            logger.info(f"data extracted successfully") 
             
-            browser.close()  
-            
-            return extracted_YC_data  
+            if extracted_YC_data:
+                return extracted_YC_data
+            else:
+                return {"error": "No data found"}      
+             
         except Exception as e:
-            logger.error("error",e)    
+            logger.error("error",e)   
+        finally:
+            browser.close()     
 
 
-
-    
+if __name__ == "__main__":
+    res = Login(username, password, 3)
+    print("res", type(res))    
         
         
