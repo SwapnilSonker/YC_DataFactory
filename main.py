@@ -21,20 +21,22 @@ def founders_data(number:int) -> list[Founders_data]:
     try:
         # Get the extracted data
         print("in try")
-        Login(username, password, number)
-        logging.info(f"Founders data processed for number {len(Login(username, password, number))}")
+        data = Login(username, password, number)
+        print("Login function executed")
+        logging.info(f"Founders data processed for number {len(data)}")
         # Check for errors (if any)
-        if not isinstance(Login(username, password, number), list):
+        if not isinstance(data, list):
             raise HTTPException(status_code=500, detail="Invalid data received")
 
         # Return the extracted data as a list
-        bands = [Founders_data(**res) for res in Login(username, password, number)]
-        if bands is None:
+        bands = [Founders_data(**res) for res in data]
+        if not bands:
             return HTTPException(status_code=404, detail="Data not found")
         return [band.model_dump() for band in bands]
 
     except Exception as e:
-        return {"error": str(e)}    
+        logging.error(f"Error processing data: {e}")
+        raise HTTPException(status_code=500, detail=str(e))    
     
 if __name__ == "__main__":
     import uvicorn
