@@ -6,6 +6,7 @@ from time import sleep
 from fastapi import FastAPI
 from playwright.sync_api import sync_playwright
 import json
+import datetime
 import logging
 from dotenv import load_dotenv
 from components.data_extraction import Data_extraction
@@ -34,9 +35,12 @@ def save_data_in_json(filename, data):
 
 def Login(ycusername , ycpassword, number):
     with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)
-        context = browser.new_context()
+        timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        browser = p.chromium.launch(headless=False)
+        context = browser.new_context(record_video_dir=f"videos/{timestamp}.webm")
+        print("video recording started context")
         page = context.new_page()
+        
         
         try:
         
@@ -115,11 +119,13 @@ def Login(ycusername , ycpassword, number):
         except Exception as e:
             logger.error("error",e)   
         finally:
-            browser.close()     
+            context.close()
+            browser.close() 
+            print("video recording done")    
 
 
 if __name__ == "__main__":
-    res = Login(username, password, 3)
-    print("res", type(res))    
+    Login(username, password, 1)
+    print("res")    
         
         

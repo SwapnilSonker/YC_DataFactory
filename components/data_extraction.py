@@ -30,8 +30,12 @@ def Data_extraction(page, context, extracted_number):
                     # print(f"Clicked job {i}")
                     sleep(3)
                     
-                    new_window = context.wait_for_event("page",timeout=10000)
-                    new_page = new_window
+                    # new_window = context.wait_for_event("page",timeout=10000)
+                    # new_page = new_window
+                    with context.expect_page() as new_page_info:
+                        new_page = new_page_info.value
+                    
+                    new_page.bring_to_front()    
 
                     new_page.wait_for_selector('//div[@class="text-blue-600 ellipsis"]//a', timeout=30000) 
                     link_locator = new_page.locator('//div[@class="text-blue-600 ellipsis"]//a')
